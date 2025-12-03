@@ -22,11 +22,9 @@ defmodule AdventOfCode.Solution.Year2025.Day03 do
     input
     |> String.split("\n", trim: true)
     |> Enum.map(fn bank ->
-      max_joltage(
-        bank
-        |> String.to_charlist(),
-        2
-      )
+      bank
+      |> String.to_charlist()
+      |> max_joltage(2)
     end)
     |> Enum.map(&List.to_integer/1)
     |> Enum.sum()
@@ -36,11 +34,9 @@ defmodule AdventOfCode.Solution.Year2025.Day03 do
     input
     |> String.split("\n", trim: true)
     |> Enum.map(fn bank ->
-      max_joltage(
-        bank
-        |> String.to_charlist()
-
-      )
+      bank
+      |> String.to_charlist()
+      |> max_joltage()
     end)
     |> Enum.map(&List.to_integer/1)
     |> Enum.sum()
