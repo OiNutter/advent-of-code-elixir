@@ -6,7 +6,7 @@ defmodule AdventOfCode.Solution.Year2025.Day03 do
     |> Enum.max()
   end
 
-  def max_joltage(bank, n \\ 12, joltage \\ 0)
+  def max_joltage(bank, n \\ 12, joltage \\ [])
 
   def max_joltage(_bank, 0, joltage) do
     joltage
@@ -15,7 +15,7 @@ defmodule AdventOfCode.Solution.Year2025.Day03 do
   def max_joltage(bank, n, joltage) do
     start = max_prefix(bank, n)
     [_start | tail] = bank |> Enum.drop_while(fn j -> j < start end)
-    max_joltage(tail, n - 1, joltage * 10 + start)
+    max_joltage(tail, n - 1, joltage ++ [start])
   end
 
   def part1(input) do
@@ -24,15 +24,11 @@ defmodule AdventOfCode.Solution.Year2025.Day03 do
     |> Enum.map(fn bank ->
       max_joltage(
         bank
-        |> String.to_charlist()
-        |> Enum.map(fn ch ->
-          if ch <= ?9 and ch >= ?0 do
-            ch - ?0
-          end
-        end),
+        |> String.to_charlist(),
         2
       )
     end)
+    |> Enum.map(&List.to_integer/1)
     |> Enum.sum()
   end
 
@@ -43,13 +39,10 @@ defmodule AdventOfCode.Solution.Year2025.Day03 do
       max_joltage(
         bank
         |> String.to_charlist()
-        |> Enum.map(fn ch ->
-          if ch <= ?9 and ch >= ?0 do
-            ch - ?0
-          end
-        end)
+
       )
     end)
+    |> Enum.map(&List.to_integer/1)
     |> Enum.sum()
   end
 end
