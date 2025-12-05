@@ -4,24 +4,26 @@ defmodule AdventOfCode.Solution.Year2025.Day04 do
   def remove_paper(map, total) do
     {map, total_removed} =
       map
-      |> Enum.reduce({map, 0}, fn {{x, y}, char}, {map, total} ->
-        if char == ?@ do
-          adjacents =
-            Enum.reduce((y - 1)..(y + 1), 0, fn dy, adj ->
-              Enum.reduce((x - 1)..(x + 1), adj, fn dx, adj ->
-                if {dx, dy} != {x, y} && Map.get(map, {dx, dy}, ?.) == ?@ do
-                  adj + 1
-                else
-                  adj
-                end
-              end)
-            end)
+      |> Enum.reduce({map, 0}, fn {{x, y}, _char}, {map, total} ->
+        adjacents =
+          Enum.reduce_while((y - 1)..(y + 1), 0, fn dy, adj ->
+            adj =
+              Enum.reduce_while((x - 1)..(x + 1), adj, fn dx, adj ->
+                adj =
+                  if {dx, dy} != {x, y} && Map.get(map, {dx, dy}, false) do
+                    adj + 1
+                  else
+                    adj
+                  end
 
-          if adjacents < 4 do
-            {Map.put(map, {x, y}, ?.), total + 1}
-          else
-            {map, total}
-          end
+                if adj >= 4, do: {:halt, adj}, else: {:cont, adj}
+              end)
+
+            if adj >= 4, do: {:halt, adj}, else: {:cont, adj}
+          end)
+
+        if adjacents < 4 do
+          {Map.delete(map, {x, y}), total + 1}
         else
           {map, total}
         end
@@ -41,7 +43,7 @@ defmodule AdventOfCode.Solution.Year2025.Day04 do
       |> String.to_charlist()
       |> Enum.with_index()
       |> Enum.reduce(map, fn {char, x}, map ->
-        Map.put(map, {x, y}, char)
+        if char == ?@, do: Map.put(map, {x, y}, true), else: map
       end)
     end)
   end
@@ -52,23 +54,25 @@ defmodule AdventOfCode.Solution.Year2025.Day04 do
 
   def part1(input) do
     input
-    |> Enum.reduce(0, fn {{x, y}, char}, acc ->
-      if char == ?@ do
-        adjacents =
-          Enum.reduce((y - 1)..(y + 1), 0, fn dy, adj ->
-            Enum.reduce((x - 1)..(x + 1), adj, fn dx, adj ->
-              if {dx, dy} != {x, y} && Map.get(input, {dx, dy}, ?.) == ?@ do
-                adj + 1
-              else
-                adj
-              end
-            end)
-          end)
+    |> Enum.reduce(0, fn {{x, y}, _char}, acc ->
+      adjacents =
+        Enum.reduce_while((y - 1)..(y + 1), 0, fn dy, adj ->
+          adj =
+            Enum.reduce_while((x - 1)..(x + 1), adj, fn dx, adj ->
+              adj =
+                if {dx, dy} != {x, y} && Map.get(input, {dx, dy}, false) do
+                  adj + 1
+                else
+                  adj
+                end
 
-        if adjacents < 4, do: acc + 1, else: acc
-      else
-        acc
-      end
+              if adj >= 4, do: {:halt, adj}, else: {:cont, adj}
+            end)
+
+          if adj >= 4, do: {:halt, adj}, else: {:cont, adj}
+        end)
+
+      if adjacents < 4, do: acc + 1, else: acc
     end)
   end
 
