@@ -8,15 +8,17 @@ defmodule AdventOfCode.Solution.Year2025.Day05 do
     fresh =
       fresh
       |> Enum.map(fn line ->
-        [start, finish] = line |> String.split("-", trim: true)
-        String.to_integer(start)..String.to_integer(finish)
+        [start, finish] = line |> String.split("-", trim: true) |> Enum.map(&String.to_integer/1)
+        {start, finish}
       end)
 
     available
     |> Enum.map(&String.to_integer/1)
     |> Enum.reduce(MapSet.new(), fn available_piece, freshIngredients ->
-      Enum.reduce(fresh, freshIngredients, fn range, acc ->
-        if Enum.member?(range, available_piece), do: MapSet.put(acc, available_piece), else: acc
+      Enum.reduce(fresh, freshIngredients, fn {start, finish}, acc ->
+        if available_piece >= start and available_piece <= finish,
+          do: MapSet.put(acc, available_piece),
+          else: acc
       end)
     end)
     |> MapSet.size()
@@ -26,14 +28,14 @@ defmodule AdventOfCode.Solution.Year2025.Day05 do
     [fresh, _available] =
       input
       |> String.split("\n\n", trim: true)
-      |> Enum.map(&String.split(&1, "\n", trim: true))
 
     sorted =
       fresh
+      |> String.split("\n", trim: true)
       |> Enum.map(fn line ->
-        [start, finish] = line |> String.split("-", trim: true)
-        lowest = min(String.to_integer(start), String.to_integer(finish))
-        highest = max(String.to_integer(start), String.to_integer(finish))
+        [start, finish] = line |> String.split("-", trim: true) |> Enum.map(&String.to_integer/1)
+        lowest = min(start, finish)
+        highest = max(start, finish)
         %{start: lowest, finish: highest}
       end)
       |> Enum.sort_by(& &1.start)
