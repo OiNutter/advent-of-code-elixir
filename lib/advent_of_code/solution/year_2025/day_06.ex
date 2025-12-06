@@ -5,65 +5,45 @@ defmodule AdventOfCode.Solution.Year2025.Day06 do
     |> Enum.map(fn line ->
       line |> String.split(" ", trim: true)
     end)
-    |> Enum.zip()
-    |> Enum.map(fn sum ->
+    |> Enum.zip_with(&Function.identity/1)
+    |> Enum.reduce(0, fn sum, acc ->
       [operator | args] =
         sum
-        |> Tuple.to_list()
         |> Enum.reverse()
 
       case operator do
-        "+" -> Enum.sum(args |> Enum.map(&String.to_integer/1))
-        "*" -> Enum.product(args |> Enum.map(&String.to_integer/1))
+        "+" -> Enum.sum(args |> Enum.map(&String.to_integer/1)) + acc
+        "*" -> Enum.product(args |> Enum.map(&String.to_integer/1)) + acc
       end
     end)
-    |> Enum.sum()
   end
 
   def part2(input) do
-    {sums, current} =
-      input
-      |> String.split("\n", trim: true)
-      |> Enum.map(fn line ->
-        line |> String.split("", trim: true)
-      end)
-      |> Enum.zip()
-      |> Enum.reduce({[], []}, fn col, {sums, current} ->
-        if col |> Tuple.to_list() |> Enum.any?(&(&1 != " ")) do
-          {sums, [col | current]}
-        else
-          {[current | sums], []}
-        end
-      end)
+    input
+    |> String.split("\n", trim: true)
+    |> Enum.map(fn line ->
+      line |> String.to_charlist()
+    end)
+    |> Enum.zip_with(&Function.identity/1)
+    |> Enum.chunk_by(fn col -> col |> Enum.any?(&(&1 !== ?\s)) end)
+    |> Enum.filter(&(length(&1) > 1))
+    |> Enum.reduce(0, fn sum, acc ->
+      [first | _] = sum
+      [operator | _] = first |> Enum.reverse()
 
-    sums = [current | sums]
-
-    sums
-    |> Enum.map(fn sum ->
-      {operator, args} =
+      args =
         sum
-        |> Enum.reduce({nil, []}, fn col, {op, args} ->
-          [operator | arg] =
-            col
-            |> Tuple.to_list()
-            |> Enum.reverse()
-
-          {if(operator != " ", do: operator, else: op),
-           [
-             arg
-             |> Enum.reverse()
-             |> Enum.join()
-             |> String.trim()
-             |> String.to_integer()
-             | args
-           ]}
+        |> Enum.map(fn col ->
+          col
+          |> Enum.drop(-1)
+          |> Enum.filter(&(&1 !== ?\s))
+          |> List.to_integer()
         end)
 
       case operator do
-        "+" -> Enum.sum(args)
-        "*" -> Enum.product(args)
+        ?+ -> Enum.sum(args) + acc
+        ?* -> Enum.product(args) + acc
       end
     end)
-    |> Enum.sum()
   end
 end
