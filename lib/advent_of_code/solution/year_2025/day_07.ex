@@ -51,8 +51,10 @@ defmodule AdventOfCode.Solution.Year2025.Day07 do
       beams
       |> Enum.reduce({MapSet.new(), count}, fn beam, {new_beams, count} ->
         if line |> Enum.at(beam) == ?^ do
-          {MapSet.put(new_beams, beam - 1)
-           |> MapSet.put(beam + 1), count + 1}
+          {
+            MapSet.put(new_beams, beam - 1) |> MapSet.put(beam + 1),
+            count + 1
+          }
         else
           {MapSet.put(new_beams, beam), count}
         end
