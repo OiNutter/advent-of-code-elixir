@@ -74,7 +74,13 @@ defmodule Mix.Tasks.Advent.Solve do
     defp opts do
       [
         aliases: [y: :year, d: :day, p: :part, b: :bench, e: :example],
-        strict: [year: :integer, day: :integer, part: :integer, bench: :boolean, example: :boolean],
+        strict: [
+          year: :integer,
+          day: :integer,
+          part: :integer,
+          bench: :boolean,
+          example: :boolean
+        ]
       ]
     end
 
@@ -95,6 +101,8 @@ defmodule Mix.Tasks.Advent.Solve do
       "Advent of Code #{args.year} - day #{args.day}\n"
       |> ansi_heading()
       |> Mix.shell().info()
+
+      Application.put_env(:advent_of_code, :is_example, args.example)
 
       do_run(setting_combo_id, module, args.part, input)
 

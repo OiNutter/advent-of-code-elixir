@@ -32,8 +32,10 @@ defmodule AdventOfCode.Solution.Year2025.Day08 do
   end
 
   def part1({distances, _}) do
+    is_example = Application.get_env(:advent_of_code, :is_example, false)
+
     distances
-    |> Enum.take(1000)
+    |> Enum.take(if is_example, do: 10, else: 1000)
     |> Enum.reduce([], fn {a, b}, circuits ->
       existing_a =
         circuits
