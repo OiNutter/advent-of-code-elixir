@@ -18,6 +18,7 @@ defmodule AdventOfCode.Solution.Year2025.Day11 do
          visited_required \\ MapSet.new(),
          memo \\ %{}
        ) do
+    # Memoization key: {device, visited_required}
     key = {device, visited_required}
 
     cond do
@@ -27,6 +28,7 @@ defmodule AdventOfCode.Solution.Year2025.Day11 do
       true ->
         connections = Map.get(devices, device, [])
 
+        # Update visited_required if current device is in required set
         new_visited_required =
           if MapSet.member?(required, device) do
             MapSet.put(visited_required, device)
@@ -35,6 +37,7 @@ defmodule AdventOfCode.Solution.Year2025.Day11 do
           end
 
         if Enum.empty?(connections) do
+          # Endpoint - check if we visited all required points
           result =
             if MapSet.size(required) == 0 or
                  MapSet.size(new_visited_required) == MapSet.size(required) do
@@ -46,15 +49,15 @@ defmodule AdventOfCode.Solution.Year2025.Day11 do
           {result, Map.put(memo, key, result)}
         else
           # Sum paths from all connections
-          total =
-            Enum.reduce(connections, {0, memo}, fn conn, {count, memo} ->
-              {path_count, new_memo} =
-                count_paths(conn, devices, required, new_visited_required, memo)
+          {total, new_memo} =
+            Enum.reduce(connections, {0, memo}, fn conn, {count, m} ->
+              {path_count, updated_memo} =
+                count_paths(conn, devices, required, new_visited_required, m)
 
-              {count + path_count, new_memo}
+              {count + path_count, updated_memo}
             end)
 
-          total
+          {total, Map.put(new_memo, key, total)}
         end
     end
   end

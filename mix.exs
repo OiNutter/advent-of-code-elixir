@@ -25,7 +25,9 @@ defmodule AdventOfCode.MixProject do
       {:benchee, "~> 1.3"},
       {:tz, "~> 0.26.5"},
       {:memoize, "~> 1.4.3"},
-      {:combination, "~> 0.0.3"}
+      {:combination, "~> 0.0.3"},
+      {:seg_seg, "~> 1.0.0"},
+      {:dantzig, github: "Pascal736/dantzig", branch: "add-variable-type-support"}
     ]
   end
 end
