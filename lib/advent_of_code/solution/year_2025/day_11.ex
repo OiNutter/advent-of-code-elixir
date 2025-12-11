@@ -1,7 +1,79 @@
 defmodule AdventOfCode.Solution.Year2025.Day11 do
-  def part1(_input) do
+  use AdventOfCode.Solution.SharedParse
+  use Agent
+
+  def parse(input) do
+    input
+    |> String.split("\n", trim: true)
+    |> Enum.reduce(%{}, fn line, acc ->
+      [key, connections] = String.split(line, ": ", trim: true)
+      Map.put(acc, key, String.split(connections, " ", trim: true))
+    end)
   end
 
-  def part2(_input) do
+  defp count_paths(
+         device,
+         devices,
+         required \\ MapSet.new(),
+         visited_required \\ MapSet.new(),
+         memo \\ %{}
+       ) do
+    key = {device, visited_required}
+
+    cond do
+      Map.has_key?(memo, key) ->
+        {Map.get(memo, key), memo}
+
+      true ->
+        connections = Map.get(devices, device, [])
+
+        new_visited_required =
+          if MapSet.member?(required, device) do
+            MapSet.put(visited_required, device)
+          else
+            visited_required
+          end
+
+        if Enum.empty?(connections) do
+          result =
+            if MapSet.size(required) == 0 or
+                 MapSet.size(new_visited_required) == MapSet.size(required) do
+              1
+            else
+              0
+            end
+
+          {result, Map.put(memo, key, result)}
+        else
+          # Sum paths from all connections
+          total =
+            Enum.reduce(connections, {0, memo}, fn conn, {count, memo} ->
+              {path_count, new_memo} =
+                count_paths(conn, devices, required, new_visited_required, memo)
+
+              {count + path_count, new_memo}
+            end)
+
+          total
+        end
+    end
+  end
+
+  def part1(devices) do
+    Map.get(devices, "you")
+    |> Enum.reduce(0, fn device, acc ->
+      {count, _} = count_paths(device, devices)
+      acc + count
+    end)
+  end
+
+  def part2(devices) do
+    Agent.start_link(fn -> %{} end, name: :paths)
+
+    Map.get(devices, "svr")
+    |> Enum.reduce(0, fn device, acc ->
+      {count, _} = count_paths(device, devices, MapSet.new(["dac", "fft"]))
+      acc + count
+    end)
   end
 end
